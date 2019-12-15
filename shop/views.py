@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
-from .forms import ContactForm, LoginForm
-from django.contrib.auth import authenticate, login
+from .forms import ContactForm, LoginForm, RegisterForm
+from django.contrib.auth import authenticate, login, get_user_model
 
 
 def home_page(request):
@@ -30,3 +30,19 @@ def login_page(request):
             login(request, user)
             return redirect("/login")
     return render(request, "auth/login.html", context)
+
+
+User = get_user_model()
+
+
+def register_page(request):
+    form = RegisterForm(request.POST or None)
+    context = {
+        "form": form
+    }
+    if form.is_valid():
+        username = form.cleaned_data.get("username")
+        email = form.cleaned_data.get("email")
+        password = form.cleaned_data.get("password")
+        User.objects.create_user(username, email, password)
+    return render(request, "auth/register.html", context)
